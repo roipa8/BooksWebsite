@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 
 function BookDetails(props) {
     const volumeInfo = props.book.volumeInfo;
-    const searchInfo = props.book.searchInfo;
     function handleKeyDown(event) {
         if (event.key === "Escape") {
             props.onClose();
@@ -13,11 +12,11 @@ function BookDetails(props) {
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, []);
+    }, );
     return <div className="full-screen">
         <div className="book-details-screen">
             <div className="book-details-image">
-                <img src={volumeInfo.imageLinks && volumeInfo.imageLinks.smallThumbnail} alt="Book image" />
+                <img src={volumeInfo.imageLinks && volumeInfo.imageLinks.smallThumbnail} alt="Book" />
             </div>
             <div className="book-details-titles">
                 <h1>{volumeInfo.title}</h1>

@@ -23,7 +23,7 @@ function Book(props) {
         setImgHovered(false);
     };
     return <div className={`book-item ${isHovered && `book-item-hover`}`} onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-        <img className={`${isImgHovered && `img-cursor`}`} onMouseOver={handleImgOver} onMouseOut={handleImgOut} onClick={() => { setFullDetails(true) }} src={volumeInfo.imageLinks && volumeInfo.imageLinks.smallThumbnail} alt="Book image" />
+        <img className={`${isImgHovered && `img-cursor`}`} onMouseOver={handleImgOver} onMouseOut={handleImgOut} onClick={() => { setFullDetails(true) }} src={volumeInfo.imageLinks && volumeInfo.imageLinks.smallThumbnail} alt="Book" />
         <h4>{volumeInfo.title}</h4>
         <button type="button" className="btn btn-info">Loan Book</button>
         {fullDetails && <BookDetails book={props.bookItem} onClose={() => { setFullDetails(false) }} />}
