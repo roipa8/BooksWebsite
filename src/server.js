@@ -8,6 +8,7 @@ import session from "express-session";
 import passport from "passport";
 import passportLocalMongoose from "passport-local-mongoose";
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
 import findOrCreate from "mongoose-findorcreate";
 import "dotenv/config";
 
@@ -31,13 +32,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb://127.0.0.1:27017/usersDB", { useNewUrlParser: true });
+mongoose.connect("mongodb://127.0.0.1:27017/booksUsersDB", { useNewUrlParser: true, useUnifiedTopology: true });
 
 const userSchema = new mongoose.Schema({
     username: String,
     password: String,
-    googleId: String
-})
+    googleId: String,
+    facebookId: String
+});
 
 userSchema.plugin(passportLocalMongoose);
 userSchema.plugin(findOrCreate);
@@ -47,7 +49,7 @@ const User = mongoose.model("User", userSchema);
 passport.use(User.createStrategy());
 
 passport.serializeUser((user, done) => {
-    done(null, user.id); 
+    done(null, user.id);
 });
 
 passport.deserializeUser((id, done) => {
@@ -62,68 +64,98 @@ passport.deserializeUser((id, done) => {
 
 
 
-// passport.use(new GoogleStrategy({
-//     clientID: process.env.CLIENT_ID,
-//     clientSecret: process.env.CLIENT_SECRET,
-//     callbackURL: "http://localhost:3000/auth/google/secrets"
-// },
-//     function (accessToken, refreshToken, profile, cb) {
-//         User.findOrCreate({ googleId: profile.id }, function (err, user) {
-//             return cb(err, user);
-//         });
-//     }
-// ));
+passport.use(new GoogleStrategy({
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/auth/google/books"
+},
+    function (accessToken, refreshToken, profile, cb) {
+        User.findOrCreate({ googleId: profile.id }, function (err, user) {
+            return cb(err, user);
+        });
+    }
+));
 
-// app.get('/auth/google',
-//     passport.authenticate('google', { scope: ['profile'] }));
+app.get('/auth/google',
+    passport.authenticate('google', { scope: ['profile'] }));
 
-// app.get('/auth/google/secrets',
-//     passport.authenticate('google', { failureRedirect: '/login' }),
-//     function (req, res) {
-//         // Successful authentication, redirect home.
-//         res.redirect('/secrets');
-//     });
+app.get('/auth/google/books',
+    passport.authenticate('google', { failureRedirect: '/auth/failedAuth' }),
+    function (req, res) {
+        res.redirect('/');
+    });
 
-// app.get("/register", (req,res) => {
-    
-// })
+
+passport.use(new FacebookStrategy({
+    clientID: process.env.APP_ID,
+    clientSecret: process.env.APP_SECRET,
+    callbackURL: "http://localhost:3000/auth/facebook/books"
+},
+    function (accessToken, refreshToken, profile, cb) {
+        User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+            return cb(err, user);
+        });
+    }
+));
+
+app.get('/auth/facebook',
+    passport.authenticate('facebook'));
+
+app.get('/auth/facebook/books',
+    passport.authenticate('facebook', { failureRedirect: '/auth/failedAuth' }),
+    function (req, res) {
+        res.redirect('/');
+    });
+
+app.get("/auth/failedAuth", (req, res) => {
+    return res.json({ success: false, message: 'Authentication failed' });
+});
+
+app.get('/isAuthenticated', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json({ isAuthenticated: true });
+    } else {
+        res.json({ isAuthenticated: false });
+    }
+});
+
 
 app.post("/register", (req, res) => {
     User.register({ username: req.body.username, active: false }, req.body.password, function (err, user) {
         if (err) {
             console.log(err);
-            res.status(404).json({success: false, message: 'Registration Failed', error: err.message});
+            res.status(404).json({ success: false, message: 'Registration Failed', error: err.message });
         } else {
             passport.authenticate("local")(req, res, function () {
-                res.json({success: false, message: 'Registration Failed', error: err.message});
+                res.json({ success: true, message: 'Registration Successful' });
             })
         }
     });
 });
 
 app.post('/login', (req, res) => {
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('local', (err, user) => {
         if (err) {
-            return res.status(500).json({success: false, message: 'Server Error', error: err.message});
+            return res.status(500).json({ success: false, message: 'Server Error', error: err.message });
         }
         if (!user) {
-            return res.status(401).json({success: false, message: 'Authentication failed', error: info.message});
+            return res.status(401).json({ success: false, message: 'Authentication failed', error: info.message });
         }
         req.logIn(user, (err) => {
             if (err) {
-                return res.status(500).json({success: false, message: 'Login error', error: err.message});
+                return res.status(500).json({ success: false, message: 'Login error', error: err.message });
             }
-            return res.json({success: true, message: 'Successfully authenticated', user: user.username});
+            return res.json({ success: true, message: 'Successfully authenticated', user: user.username });
         });
-    });
+    })(req, res);
 });
 
-app.post('/logout', (req,res) => {
+app.post('/logout', (req, res) => {
     req.logOut((err) => {
-        if(err){
-            return res.status(500).json({success: false, message: 'Server Error', error: err.message});
+        if (err) {
+            return res.status(500).json({ success: false, message: 'Server Error', error: err.message });
         }
-        return res.json({success: true, message: 'Successfully logged out'});
+        return res.json({ success: true, message: 'Successfully logged out' });
     })
 })
 
