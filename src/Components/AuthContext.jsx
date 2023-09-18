@@ -1,12 +1,26 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-export const AuthContext = React.createContext();
+const AuthContext = React.createContext();
+const UserContext = React.createContext();
 
-export function AuthProvider({children}) {
+export function GetAuth() {
+    return useContext(AuthContext);
+}
+
+export function GetUserId() {
+    return useContext(UserContext);
+}
+
+export function AuthProvider({ children }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userId, setUserId] = useState({
+        userName: "",
+        googleId: "",
+        facebookId: ""
+    });
     useEffect(() => {
-        async function checkAuthentication(){
+        async function checkAuthentication() {
             try {
                 const response = await axios.get("/isAuthenticated");
                 setIsAuthenticated(response.data.isAuthenticated);
@@ -17,8 +31,10 @@ export function AuthProvider({children}) {
         checkAuthentication();
     }, []);
     return (
-        <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated}}>
-            {children}
+        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+            <UserContext.Provider value={{ userId, setUserId }}>
+                {children}
+            </UserContext.Provider>
         </AuthContext.Provider>
     )
 }

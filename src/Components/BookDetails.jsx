@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
+import DOMPurify from "dompurify";
 
 function BookDetails(props) {
     const volumeInfo = props.book.volumeInfo;
+    const sanitizedHTML = DOMPurify.sanitize(volumeInfo.description);
     function handleKeyDown(event) {
         if (event.key === "Escape") {
             props.onClose();
@@ -12,7 +14,7 @@ function BookDetails(props) {
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, );
+    },);
     return <div className="full-screen">
         <div className="book-details-screen">
             <div className="book-details-image">
@@ -25,8 +27,8 @@ function BookDetails(props) {
                 <h4>{volumeInfo.publishedDate}</h4>
             </div>
             <div className="book-details-adds">
-                <p>{volumeInfo.description}</p>
-                <button type="button" class="btn btn-secondary" onClick={props.onClose}>Return</button>
+                <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }}></div>
+                <button type="button" className="btn btn-secondary" onClick={props.onClose}>Return</button>
             </div>
         </div>
     </div>;
