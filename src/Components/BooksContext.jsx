@@ -1,42 +1,41 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 const NumOfBooksContext = React.createContext();
-const MyBooksContext = React.createContext();
+const MyReadBooksContext = React.createContext();
+const MyUnreadBooksContext = React.createContext();
+const BooksContext = React.createContext();
 
 export function GetNumOfBooks() {
     return useContext(NumOfBooksContext);
 }
 
-export function GetMyBooks() {
-    return useContext(MyBooksContext);
+export function GetMyReadBooks() {
+    return useContext(MyReadBooksContext);
+}
+
+export function GetMyUnreadBooks() {
+    return useContext(MyUnreadBooksContext);
+}
+
+export function GetBooks() {
+    return useContext(BooksContext);
 }
 
 export function BooksProvider({ children }) {
-    const [numOfBooks, setNumOfBooks] = useState(() => {
-        const savedNumOfBooks = localStorage.getItem('numOfBooks');
-        return savedNumOfBooks ? JSON.parse(savedNumOfBooks) : 0;
-    });
-
-    useEffect(() => {
-        localStorage.setItem('numOfBooks', JSON.stringify(numOfBooks));
-    }, [numOfBooks]);
-
-    const [myBooks, setMyBooks] = useState(() => {
-        const savedMyBooks = localStorage.getItem('myBooks');
-        return savedMyBooks ? JSON.parse(savedMyBooks) : [];
-    });
-    
-    
-
-    useEffect(() => {
-        localStorage.setItem('myBooks', JSON.stringify(myBooks));
-    }, [myBooks]);
+    const [books, setBooks] = useState([]);
+    const [numOfBooks, setNumOfBooks] = useState(0);
+    const [myReadBooks, setMyReadBooks] = useState([]);
+    const [myUnreadBooks, setMyUnreadBooks] = useState([]);
 
     return (
         <NumOfBooksContext.Provider value={{ numOfBooks, setNumOfBooks }} >
-            <MyBooksContext.Provider value={{ myBooks, setMyBooks }}>
-                {children}
-            </MyBooksContext.Provider>
+            <MyReadBooksContext.Provider value={{ myReadBooks, setMyReadBooks }}>
+                <MyUnreadBooksContext.Provider value={{ myUnreadBooks, setMyUnreadBooks }}>
+                    <BooksContext.Provider value={{ books, setBooks }}>
+                        {children}
+                    </BooksContext.Provider>
+                </MyUnreadBooksContext.Provider>
+            </MyReadBooksContext.Provider>
         </NumOfBooksContext.Provider>
     );
 }

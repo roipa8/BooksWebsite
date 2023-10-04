@@ -15,20 +15,54 @@ body {
     display: flex;
     flex-direction: column;
     max-width: 210px;
+    align-items: center;
+    position: relative;
+}
+
+.book-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.buttons {
+    width: 100%;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.buttons * {
+    margin: 7px 0;
 }
 
 .input-container {
     width: 50%;
 }
 
+.unread-read-books {
+    padding: 20px;
+}
+
 .book-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 2rem;
-    margin: 50px 300px;
+    margin: 50px 300px 20px 300px;
 }
+
+.read-books-section {
+    margin-top: 20px; /* You can adjust this value as needed */
+}
+
+.read-books-title {
+    margin-bottom: 10px; /* Adjust as needed */
+}
+
+
 
 @media (max-width: 992px) {
     .book-container {
@@ -46,6 +80,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 2;
 }
 
 .book-details-screen {
@@ -70,6 +105,10 @@ body {
     grid-column: span 2;
 }
 
+.book-details-adds {
+    list-style-type: disc;
+}
+
 .img-cursor {
     cursor: pointer;
 }
@@ -80,7 +119,6 @@ body {
     justify-content: center;
     align-items: center;
     padding: 80px 0;
-    /* text-align: center; */
     font-family: "Source Sans Pro", sans-serif;
 }
 
@@ -160,10 +198,10 @@ body {
 
 .btn-google {
     color: #fff;
-    background-color: #dd4b39; 
+    background-color: #dd4b39;
     border-color: rgba(0, 0, 0, 0.2);
     margin-bottom: 10px;
-    border-radius: 5px; 
+    border-radius: 5px;
 }
 
 .btn-google:hover {
@@ -188,3 +226,25 @@ body {
 .btn-facebook .fab {
     margin-right: 8px;
 }
+
+.form2-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.form2-container>div {
+    width: 100%;
+}
+
+.form2-container label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form2-container input {
+    padding: 10px;
+}
+

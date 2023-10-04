@@ -12,7 +12,6 @@ import { Strategy as FacebookStrategy } from 'passport-facebook';
 import findOrCreate from "mongoose-findorcreate";
 import "dotenv/config";
 import cors from 'cors';
-import { redirect } from "react-router-dom";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = path.join(__dirname, "../build");
@@ -46,7 +45,8 @@ const userSchema = new mongoose.Schema({
         {
             startingDate: { type: Date, default: Date.now },
             rentalDuration: { type: Number, default: 0 },
-            bookId: String
+            bookId: String,
+            status: { type: String, enum: ['read', 'unread'], default: 'unread' }
         }
     ]
 });
@@ -204,14 +204,12 @@ app.patch('/addBook', async (req, res) => {
             $push: { cart: { bookId: bookId } }
         };
         const result = await User.updateOne(filter, update);
-        if (result.nModified === 0) { // No ducuments were modified
+        if (result.n === 0) { // No ducuments matches the filter were modified
             return res.status(404).json({ success: false, message: "User not found", error: err.message });
-        };
-        const user = await User.findOne(filter);
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+        } else if(result.nModified === 0) { // No documents were modified
+            return res.status(404).json({ success: false, message: "User not found", error: err.message });
         }
-        return res.json({ success: true, message: "User successfully updated", cartSize: user.cart.length });
+        return res.json({ success: true, message: "User successfully updated" });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Server error", error: err.message });
     };
@@ -231,7 +229,7 @@ app.get('/getUserBooksData', async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
-        return res.json({ success: true, message: "User's books data successfully retrieved", cartItems: user.cart, numOfBooks: user.cart.length });
+        return res.json({ success: true, message: "User's books data successfully retrieved", cartItems: user.cart });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Server error", error: err.message });
     }
@@ -251,18 +249,42 @@ app.delete('/removeBook', async (req, res) => {
             $pull: { cart: { bookId: bookId } }
         };
         const result = await User.updateOne(filter, update);
-        if (result.nModified === 0) { // No ducuments were modified
+        if (result.n === 0) { // No ducuments matches the filter were modified
             return res.status(404).json({ success: false, message: "User not found", error: err.message });
-        };
-        const user = await User.findOne(filter);
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+        } else if(result.nModified === 0) { // No documents were modified
+            return res.status(404).json({ success: false, message: "User not found", error: err.message });
         }
-        return res.json({ success: true, message: "User successfully updated", cartSize: user.cart.length });
+        return res.json({ success: true, message: "User successfully updated" });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Server error", error: err.message });
     };
 });
+
+app.patch('/markAsRead', async (req, res) => {
+    try {
+        const { userId, bookId } = req.body;
+        const filter = {
+            $or: [
+                { username: userId.userName },
+                { googleId: userId.googleId },
+                { facebookId: userId.facebookId }
+            ]
+        };
+        const user = await User.findOne(filter);
+        if(!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        const book = user.cart.find(b => b.bookId === bookId);
+        if(!book) {
+            return res.status(404).json({ success: false, message: "Book not found" });
+        }
+        book.status = 'read';
+        await user.save();
+        return res.json({ success: true, message: "Book marked as read succefully" });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Server error", error: err.message });
+    }
+})
 
 app.get("*", (req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'));

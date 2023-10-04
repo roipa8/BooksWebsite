@@ -4,25 +4,26 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import Book from "./Book";
 import Navbar from './Navbar';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { GetAuth, GetUserId } from './AuthContext';
-import { GetMyBooks, GetNumOfBooks } from './BooksContext';
+import { GetNumOfBooks, GetBooks, GetMyReadBooks, GetMyUnreadBooks } from './BooksContext';
 
 function Home() {
+    const booksApiUrl = "https://www.googleapis.com/books/v1/volumes";
     const [text, setText] = useState("");
-    const [books, setBooks] = useState([]);
+    const {books, setBooks} = GetBooks();
     const { isAuthenticated, setIsAuthenticated } = GetAuth();
     const { userId, setUserId } = GetUserId();
     const { setNumOfBooks } = GetNumOfBooks();
-    const { setMyBooks } = GetMyBooks();
+    const { setMyReadBooks } = GetMyReadBooks();
+    const { setMyUnreadBooks } = GetMyUnreadBooks();
     const maxResults = 40;
-    const navigate = useNavigate();
     function updateText(event) {
         setText(event.target.value);
     }
     async function updateBooks() {
         if (text !== "") {
-            const result = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${text}&key=${process.env.REACT_APP_API_KEY}&maxResults=${maxResults}`);
+            const result = await axios.get(booksApiUrl + `?q=${text}&key=${process.env.REACT_APP_API_KEY}&maxResults=${maxResults}`);
             setBooks(result.data.items);
         }
     }
@@ -35,7 +36,6 @@ function Home() {
     function resetBooks() {
         setBooks([]);
         setText("");
-        navigate("/");
     }
     useEffect(() => {
         async function getUserData() {
@@ -70,12 +70,16 @@ function Home() {
                 try {
                     const response = await axios.get('/getUserBooksData', { params: { userId: userId } });
                     if (response.data.success) {
-                        const { cartItems, numOfBooks } = response.data;
-                        setNumOfBooks(numOfBooks);
+                        const { cartItems } = response.data;
+                        const unreadCartItems = cartItems.filter(cartItem => cartItem.status === "unread");
+                        const readCartItems = cartItems.filter(cartItem => cartItem.status === "read");
+                        console.log("unreadCartItems",unreadCartItems);
+                        console.log("readCartItems",readCartItems);
+                        setNumOfBooks(unreadCartItems.length);
                         try {
-                            const userBooks = await Promise.all(cartItems.map(async (cartItem) => {
+                            const readUserBooks = await Promise.all(readCartItems.map(async (cartItem) => {
                                 try {
-                                    const bookResponse = await axios.get(`https://www.googleapis.com/books/v1/volumes/${cartItem.bookId}`);
+                                    const bookResponse = await axios.get(booksApiUrl + `/${cartItem.bookId}`);
                                     return bookResponse.data;
                                 } catch (err) {
                                     console.log("An error occoured while fetching a book with an id ", cartItem.bookId);
@@ -83,8 +87,20 @@ function Home() {
                                     return null;
                                 }
                             }))
-                            const validUserBooks = userBooks.filter(userBook => userBook !== null);
-                            setMyBooks(validUserBooks);
+                            const validReadUserBooks = readUserBooks.filter(userBook => userBook !== null);
+                            setMyReadBooks(validReadUserBooks);
+                            const unreadUserBooks = await Promise.all(unreadCartItems.map(async (cartItem) => {
+                                try {
+                                    const bookResponse = await axios.get(booksApiUrl + `/${cartItem.bookId}`);
+                                    return bookResponse.data;
+                                } catch (err) {
+                                    console.log("An error occoured while fetching a book with an id ", cartItem.bookId);
+                                    console.error(err);
+                                    return null;
+                                }
+                            }))
+                            const validUnreadUserBooks = unreadUserBooks.filter(userBook => userBook !== null);
+                            setMyUnreadBooks(validUnreadUserBooks);
                         } catch (err) {
                             console.error("An error occoured while fetching the books ", err);
                         }
@@ -95,7 +111,7 @@ function Home() {
             };
             getUserBooksData();
         }
-    }, [userId, setNumOfBooks, setMyBooks, isAuthenticated]);
+    }, [userId, setNumOfBooks, setMyReadBooks, setMyUnreadBooks, isAuthenticated]);
 
     return (
         <div>

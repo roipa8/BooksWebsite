@@ -4,6 +4,7 @@ import Register from './Register';
 import Login from './Login';
 import MyCart from './MyCart';
 import Logout from "./Logout";
+import AdvancedSearch from "./AdvancedSearch";
 import { AuthProvider } from './AuthContext';
 import { createBrowserRouter, RouterProvider, createRoutesFromElements, Route } from 'react-router-dom';
 import { BooksProvider } from './BooksContext';
@@ -16,6 +17,7 @@ const router = createBrowserRouter(
       <Route path='login' element={<Login />} />
       <Route path='logout' element={<Logout />} />
       <Route path='myBooks' element={<MyCart />} />
+      <Route path='advancedSearch' element={<AdvancedSearch />} />
     </Route>
   )
 );

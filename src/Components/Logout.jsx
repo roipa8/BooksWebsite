@@ -2,11 +2,13 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { GetAuth, GetUserId } from "./AuthContext";
+import { GetBooks } from "./BooksContext";
 
 function Logout() {
     const navigate = useNavigate();
     const {setIsAuthenticated} = GetAuth();
     const {setUserId} = GetUserId();
+    const {setBooks} = GetBooks();
     useEffect(() => {
         async function logout() {
             try {
@@ -18,6 +20,7 @@ function Logout() {
                         googleId: "",
                         facebookId: ""
                     });
+                    setBooks([]);
                     navigate("/");
                 }
             } catch (error) {
@@ -25,7 +28,7 @@ function Logout() {
             }
         }
         logout();
-    }, [navigate, setIsAuthenticated, setUserId]);
+    }, [navigate, setIsAuthenticated, setUserId, setBooks]);
     return null;
 };
 

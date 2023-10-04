@@ -1,20 +1,22 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { GetAuth } from "./AuthContext";
-import { GetNumOfBooks } from "./BooksContext";
+import { GetBooks, GetNumOfBooks } from "./BooksContext";
 
 function Navbar() {
     const { isAuthenticated } = GetAuth();
     const {numOfBooks} = GetNumOfBooks();
+    const {setBooks} = GetBooks();
 
     return <nav className="py-2 bg-body-tertiary border-bottom">
         <div className="container d-flex flex-wrap">
             <ul className="nav me-auto">
-                <li className="nav-item"><Link to="/" className="nav-link link-body-emphasis px-2 active" aria-current="page">Home</Link></li>
-                <li className="nav-item"><Link to="/Features" className="nav-link link-body-emphasis px-2">Features</Link></li>
-                <li className="nav-item"><Link to="/Pricing" className="nav-link link-body-emphasis px-2">Pricing</Link></li>
+                <li className="nav-item"><Link to="/" onClick={() => setBooks([])} className="nav-link link-body-emphasis px-2 active" aria-current="page">Home</Link></li>
+                <li className="nav-item"><Link to="/features" className="nav-link link-body-emphasis px-2">Features</Link></li>
+                <li className="nav-item"><Link to="/pricing" className="nav-link link-body-emphasis px-2">Pricing</Link></li>
                 <li className="nav-item"><Link to="/FAQs" className="nav-link link-body-emphasis px-2">FAQs</Link></li>
-                <li className="nav-item"><Link to="/About" className="nav-link link-body-emphasis px-2">About</Link></li>
+                <li className="nav-item"><Link to="/about" className="nav-link link-body-emphasis px-2">About</Link></li>
+                <li className="nav-item"><Link to="/advancedSearch" className="nav-link link-body-emphasis px-2">Advanced-Search</Link></li>
             </ul>
             {isAuthenticated ?
                 <div className="d-flex align-items-center">
