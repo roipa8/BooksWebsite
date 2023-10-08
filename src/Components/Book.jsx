@@ -16,6 +16,7 @@ function Book(props) {
     const [isHovered, setIsHovered] = useState(false);
     const [isImgHovered, setImgHovered] = useState(false);
     const isInCart = props.isInCart;
+    const isRead = props.isRead;
 
     function handleMouseOver() {
         if (!fullDetails) {
@@ -84,7 +85,7 @@ function Book(props) {
             {!isInCart && isAuthenticated && <button onClick={addToCart} className="btn btn-info">Add Book</button>}
             {isInCart && <a className="btn btn-secondary" href={volumeInfo.previewLink}>Read the book</a>}
             {isInCart && <button onClick={removeFromCart} className="btn btn-info">Remove From List</button>}
-            {isInCart && <button onClick={markAsRead} className="btn btn-light">Mark As Read</button>}
+            {isInCart && !isRead && <button onClick={markAsRead} className="btn btn-light">Mark As Read</button>}
         </div>
     </div>
 }
