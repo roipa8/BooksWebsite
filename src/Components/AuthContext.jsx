@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 const AuthContext = React.createContext();
 const UserContext = React.createContext();
+const DeadlineContext = React.createContext();
 
 export function GetAuth() {
     return useContext(AuthContext);
@@ -12,6 +13,10 @@ export function GetUserId() {
     return useContext(UserContext);
 }
 
+export function GetDeadlineStatus() {
+    return useContext(DeadlineContext);
+}
+
 export function AuthProvider({ children }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userId, setUserId] = useState({
@@ -19,6 +24,7 @@ export function AuthProvider({ children }) {
         googleId: "",
         facebookId: ""
     });
+    const [deadlineEnabled, setDeadlineEnabled] = useState();
     useEffect(() => {
         async function checkAuthentication() {
             try {
@@ -33,7 +39,9 @@ export function AuthProvider({ children }) {
     return (
         <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
             <UserContext.Provider value={{ userId, setUserId }}>
-                {children}
+                <DeadlineContext.Provider value={{ deadlineEnabled, setDeadlineEnabled }}>
+                    {children}
+                </DeadlineContext.Provider>
             </UserContext.Provider>
         </AuthContext.Provider>
     )

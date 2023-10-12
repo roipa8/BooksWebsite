@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import BookDetails from "./BookDetails";
-import { GetAuth, GetUserId } from "./AuthContext";
+import { GetAuth, GetDeadlineStatus, GetUserId } from "./AuthContext";
 import axios from "axios";
 import { GetMyReadBooks, GetMyUnreadBooks, GetNumOfBooks } from "./BooksContext";
+import BookDeadline from "./BookDeadline";
 
 function Book(props) {
     const volumeInfo = props.bookItem.volumeInfo;
@@ -17,9 +18,11 @@ function Book(props) {
     const [isImgHovered, setImgHovered] = useState(false);
     const isInCart = props.isInCart;
     const isRead = props.isRead;
+    const { deadlineEnabled } = GetDeadlineStatus();
+    const [deadlineWindow, setDeadlineWindow] = useState(false);
 
     function handleMouseOver() {
-        if (!fullDetails) {
+        if (!fullDetails && !deadlineWindow) {
             setIsHovered(true);
         }
     };
@@ -29,9 +32,7 @@ function Book(props) {
     };
 
     function handleImgOver() {
-        if (!fullDetails) {
-            setImgHovered(true);
-        }
+        setImgHovered(true);
     };
 
     function handleImgOut() {
@@ -39,11 +40,19 @@ function Book(props) {
     };
 
     async function addToCart() {
+        console.log(myUnreadBooks);
         try {
-            const response = await axios.patch("/addBook", { bookId: bookId, userId: userId });
-            if (response.data.success && !myUnreadBooks.includes(props.bookItem) && !myReadBooks.includes(props.bookItem)) {
-                setNumOfBooks(prevValue => prevValue + 1);
-                setMyUnreadBooks(prevValue => [...prevValue, props.bookItem]);
+            if (!myUnreadBooks.some(book => book.id === bookId) && !myReadBooks.some(book => book.id === bookId)) {
+                const response = await axios.patch("/addBook", { bookId: bookId, userId: userId });
+                if (response.data.success) {
+                    if (deadlineEnabled) {
+                        setDeadlineWindow(true);
+                    }
+                    setNumOfBooks(prevValue => prevValue + 1);
+                    setMyUnreadBooks(prevValue => [...prevValue, props.bookItem]);
+                }
+            } else {
+                console.log("Book in cart");
             }
         } catch (err) {
             console.error(err);
@@ -80,12 +89,15 @@ function Book(props) {
             <img className={`${isImgHovered && `img-cursor`}`} onMouseOver={handleImgOver} onMouseOut={handleImgOut} onClick={() => { setFullDetails(true) }} src={volumeInfo.imageLinks && volumeInfo.imageLinks.smallThumbnail} alt="Book" />
             <h4>{volumeInfo.title}</h4>
         </div>
+        {isInCart && !isRead && console.log(props.bookItem)}
+        {deadlineWindow && <BookDeadline bookId={bookId} userId={userId} onClose={() => { setDeadlineWindow(false) }} />}
         {fullDetails && <BookDetails book={props.bookItem} onClose={() => { setFullDetails(false) }} />}
         <div className="buttons">
             {!isInCart && isAuthenticated && <button onClick={addToCart} className="btn btn-info">Add Book</button>}
             {isInCart && <a className="btn btn-secondary" href={volumeInfo.previewLink}>Read the book</a>}
             {isInCart && <button onClick={removeFromCart} className="btn btn-info">Remove From List</button>}
             {isInCart && !isRead && <button onClick={markAsRead} className="btn btn-light">Mark As Read</button>}
+            {deadlineEnabled && isInCart && !isRead && props.bookItem.daysLeft && <p>You got {props.bookItem.daysLeft} days until your deadline</p>}
         </div>
     </div>
 }

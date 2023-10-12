@@ -3,8 +3,8 @@ body {
 }
 
 .book-item-hover {
-    transform: scale(1.05);
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0.9;
+    transition: opacity 0.2s ease-in-out;
 }
 
 .book-item {
@@ -56,26 +56,17 @@ body {
 
 .read-books-section {
     margin-top: 20px;
-    /* You can adjust this value as needed */
 }
 
 .read-books-title {
     font-size: 2em;
-    /* Adjust the font size to your liking */
     margin-top: 20px;
-    /* Adjust the margin as needed */
     margin-bottom: 10px;
-    /* Adjust the margin as needed */
     text-align: center;
-    /* Center-align the text */
     font-weight: bold;
-    /* Make the text bold */
     color: #333333;
-    /* Choose a dark, readable color */
     border-bottom: 2px solid #333333;
-    /* Optional: add a bottom border for emphasis */
     padding-bottom: 5px;
-    /* Optional: add some padding to space out the border */
 }
 
 
@@ -103,6 +94,16 @@ body {
     display: grid;
     grid-template-columns: auto 1fr;
     grid-template-rows: auto auto 1fr auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 70%;
+    max-height: 70%;
+    overflow: auto;
+    position: relative;
+}
+
+.book-deadline-screen {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
@@ -302,64 +303,14 @@ body {
     display: block;
 }
 
-.custom-checkbox {
-    position: relative;
-    padding-left: 25px;
-    cursor: pointer;
-    font-size: 13px;
-    user-select: none;
+.checkbox-container {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
-.custom-checkbox input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-}
-
-.custom-checkbox label {
-    position: relative;
-    display: block;
-    padding-left: 30px;
-    cursor: pointer;
+.checkbox-container label {
+    margin-left: 10px; /* Adjust space between checkbox and label */
     font-size: 16px;
-    user-select: none;
 }
-
-.custom-checkbox label:before,
-.custom-checkbox label:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-
-.custom-checkbox label:before {
-    width: 20px;
-    height: 20px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    transition: all 0.3s;
-}
-
-/* .custom-checkbox input:checked+label:before {
-    background-color: #4caf50;
-    border-color: #4caf50;
-} */
-
-/* .custom-checkbox label:after {
-    width: 10px;
-    height: 5px;
-    border-left: 2px solid #fff;
-    border-bottom: 2px solid #fff;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-45deg);
-    opacity: 0;
-    transition: all 0.3s;
-}
-
-.custom-checkbox input:checked+label:after {
-    opacity: 1;
-} */

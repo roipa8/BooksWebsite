@@ -14,7 +14,7 @@ function BookDetails(props) {
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, );
+    });
     return <div className="full-screen">
         <div className="book-details-screen">
             <div className="book-details-image">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
@@ -6,12 +6,12 @@ import Book from "./Book";
 import Navbar from './Navbar';
 import { Link } from 'react-router-dom';
 import { GetAuth, GetUserId } from './AuthContext';
-import { GetNumOfBooks, GetBooks, GetMyReadBooks, GetMyUnreadBooks } from './BooksContext';
+import { GetNumOfBooks, GetBooks, GetMyReadBooks, GetMyUnreadBooks, GetBooksSearch } from './BooksContext';
 
 function Home() {
     const booksApiUrl = "https://www.googleapis.com/books/v1/volumes";
-    const [text, setText] = useState("");
-    const {books, setBooks} = GetBooks();
+    const { text, setText } = GetBooksSearch();
+    const { books, setBooks } = GetBooks();
     const { isAuthenticated, setIsAuthenticated } = GetAuth();
     const { userId, setUserId } = GetUserId();
     const { setNumOfBooks } = GetNumOfBooks();
@@ -64,6 +64,12 @@ function Home() {
         getUserData();
     }, [setIsAuthenticated, setUserId]);
 
+    function calculateDaysLeft(deadlineDate) {
+        const now = new Date();
+        const deadline = new Date(deadlineDate);
+        return Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+    }
+
     useEffect(() => {
         if (isAuthenticated) {
             async function getUserBooksData() {
@@ -73,8 +79,6 @@ function Home() {
                         const { cartItems } = response.data;
                         const unreadCartItems = cartItems.filter(cartItem => cartItem.status === "unread");
                         const readCartItems = cartItems.filter(cartItem => cartItem.status === "read");
-                        console.log("unreadCartItems",unreadCartItems);
-                        console.log("readCartItems",readCartItems);
                         setNumOfBooks(unreadCartItems.length);
                         try {
                             const readUserBooks = await Promise.all(readCartItems.map(async (cartItem) => {
@@ -92,13 +96,18 @@ function Home() {
                             const unreadUserBooks = await Promise.all(unreadCartItems.map(async (cartItem) => {
                                 try {
                                     const bookResponse = await axios.get(booksApiUrl + `/${cartItem.bookId}`);
-                                    return bookResponse.data;
+                                    if(cartItem.deadlineDate) {
+                                        const daysLeft = calculateDaysLeft(cartItem.deadlineDate);
+                                        return { ...bookResponse.data, daysLeft: daysLeft};
+                                    } else {
+                                        return bookResponse.data;
+                                    }
                                 } catch (err) {
                                     console.log("An error occoured while fetching a book with an id ", cartItem.bookId);
                                     console.error(err);
                                     return null;
                                 }
-                            }))
+                            }));
                             const validUnreadUserBooks = unreadUserBooks.filter(userBook => userBook !== null);
                             setMyUnreadBooks(validUnreadUserBooks);
                         } catch (err) {

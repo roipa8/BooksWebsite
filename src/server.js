@@ -41,9 +41,11 @@ const userSchema = new mongoose.Schema({
     password: String,
     googleId: String,
     facebookId: String,
+    deadlineStatus: {type: Boolean, default: false},
     cart: [
         {
             startingDate: { type: Date, default: Date.now },
+            deadlineDate: Date,
             rentalDuration: { type: Number, default: 0 },
             bookId: String,
             status: { type: String, enum: ['read', 'unread'], default: 'unread' }
@@ -206,7 +208,7 @@ app.patch('/addBook', async (req, res) => {
         const result = await User.updateOne(filter, update);
         if (result.n === 0) { // No ducuments matches the filter were modified
             return res.status(404).json({ success: false, message: "User not found", error: err.message });
-        } else if(result.nModified === 0) { // No documents were modified
+        } else if (result.nModified === 0) { // No documents were modified
             return res.status(404).json({ success: false, message: "User not found", error: err.message });
         }
         return res.json({ success: true, message: "User successfully updated" });
@@ -224,7 +226,7 @@ app.get('/getUserBooksData', async (req, res) => {
                 { googleId: userId.googleId },
                 { facebookId: userId.facebookId }
             ]
-        };
+        };  
         const user = await User.findOne(filter);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
@@ -251,7 +253,7 @@ app.delete('/removeBook', async (req, res) => {
         const result = await User.updateOne(filter, update);
         if (result.n === 0) { // No ducuments matches the filter were modified
             return res.status(404).json({ success: false, message: "User not found", error: err.message });
-        } else if(result.nModified === 0) { // No documents were modified
+        } else if (result.nModified === 0) { // No documents were modified
             return res.status(404).json({ success: false, message: "User not found", error: err.message });
         }
         return res.json({ success: true, message: "User successfully updated" });
@@ -271,18 +273,86 @@ app.patch('/markAsRead', async (req, res) => {
             ]
         };
         const user = await User.findOne(filter);
-        if(!user) {
+        if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
-        const book = user.cart.find(b => b.bookId === bookId);
-        if(!book) {
+        const cartItem = user.cart.find(item => item.bookId === bookId);
+        if (!cartItem) {
             return res.status(404).json({ success: false, message: "Book not found" });
         }
-        book.status = 'read';
+        cartItem.status = 'read';
         await user.save();
         return res.json({ success: true, message: "Book marked as read succefully" });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Server error", error: err.message });
+    }
+});
+
+app.get('/getDeadlineStatus', async (req, res) => {
+    try {
+        const { userId } = req.query;
+        const filter = {
+            $or: [
+                { username: userId.userName },
+                { googleId: userId.googleId },
+                { facebookId: userId.facebookId }
+            ]
+        };
+        const user = await User.findOne(filter);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        return res.json({ success: true, message: "Book marked as read succefully", deadlineStatus: user.deadlineStatus });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Server error", error: err.message });
+    }
+});
+
+app.patch('/setDeadline', async (req, res) => {
+    try {
+        const { userId, bookId, date } = req.body;
+        const filter = {
+            $or: [
+                { username: userId.userName },
+                { googleId: userId.googleId },
+                { facebookId: userId.facebookId }
+            ]
+        };
+        const user = await User.findOne(filter);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        const cartItem = user.cart.find(item => item.bookId === bookId);
+        if (!cartItem) {
+            return res.status(404).json({ success: false, message: "Cart item not found" });
+        }
+        cartItem.deadlineDate = date;
+        await user.save();
+        return res.json({ success: true, message: "Deadline date has been set succefully" });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Server error", error: err.message });
+    }
+})
+
+app.patch('/toggleDeadlineStatus', async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const filter = {
+            $or: [
+                { username: userId.userName },
+                { googleId: userId.googleId },
+                { facebookId: userId.facebookId }
+            ]
+        };
+        const user = await User.findOne(filter);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        user.deadlineStatus = !user.deadlineStatus;
+        await user.save();
+        return res.json({ success: true, message: "User deadline status changed succefully" });
+    } catch (err) {
+        
     }
 })
 
