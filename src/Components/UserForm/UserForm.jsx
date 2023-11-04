@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import Navbar from "./Navbar";
+import Navbar from "../Navbar/Navbar";
+import './UserForm.css'
 
 function UserForm(props) {
     const [user, setUser] = useState({
@@ -27,7 +28,7 @@ function UserForm(props) {
     return (
         <div>
             <Navbar />
-            <div className="form-container">
+            <div className="user-form-container">
                 <h1>{props.title}</h1>
                 <form onSubmit={handleSubmit}>
                     <input onChange={updateUser} type="text" name="username" value={user.username} placeholder="Enter Username" />

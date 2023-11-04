@@ -11,15 +11,12 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import findOrCreate from "mongoose-findorcreate";
 import "dotenv/config";
-import cors from 'cors';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = path.join(__dirname, "../build");
 
 const app = express();
 const port = 3000;
-
-app.use(cors({ origin: 'http://localhost:3000' }));
 
 app.use(express.static(buildPath));
 app.use(bodyParser.json());
@@ -291,6 +288,7 @@ app.patch('/markAsRead', async (req, res) => {
 app.get('/getDeadlineStatus', async (req, res) => {
     try {
         const { userId } = req.query;
+        console.log('Received query:', req.query);
         const filter = {
             $or: [
                 { username: userId.userName },
@@ -302,7 +300,7 @@ app.get('/getDeadlineStatus', async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
-        return res.json({ success: true, message: "Book marked as read succefully", deadlineStatus: user.deadlineStatus });
+        return res.json({ success: true, message: "Deadline succefully recieved", deadlineStatus: user.deadlineStatus });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Server error", error: err.message });
     }
@@ -352,7 +350,7 @@ app.patch('/toggleDeadlineStatus', async (req, res) => {
         await user.save();
         return res.json({ success: true, message: "User deadline status changed succefully" });
     } catch (err) {
-        
+        return res.status(500).json({ success: false, message: "Server error", error: err.message });
     }
 })
 

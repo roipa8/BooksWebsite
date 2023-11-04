@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
-import UserForm from "./UserForm";
+import UserForm from "./UserForm/UserForm";
 import { useNavigate } from "react-router-dom";
-import { GetAuth, GetUserId } from "./AuthContext";
+import { GetAuth, GetUserId } from "../Contexts/AuthContext";
 
 function Login() {
     const [errorMessage, setErrorMessage] = useState(null);

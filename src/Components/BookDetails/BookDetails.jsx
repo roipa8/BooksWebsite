@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import DOMPurify from "dompurify";
+import './BookDetails.css'
 
 function BookDetails(props) {
     const volumeInfo = props.book.volumeInfo;

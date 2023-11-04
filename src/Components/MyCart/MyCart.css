@@ -1,0 +1,18 @@
+.unread-read-books {
+    padding: 20px;
+}
+
+.read-books-section {
+    margin-top: 20px;
+}
+
+.read-books-title {
+    font-size: 2em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #333333;
+    border-bottom: 2px solid #333333;
+    padding-bottom: 5px;
+}

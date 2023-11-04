@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GetAuth, GetDeadlineStatus, GetUserId } from "./AuthContext";
-import { GetBooks, GetBooksSearch, GetNumOfBooks } from "./BooksContext";
+import { GetAuth, GetDeadlineStatus, GetUserId } from "../../Contexts/AuthContext";
+import { GetBooks, GetBooksSearch, GetNumOfBooks } from "../../Contexts/BooksContext";
 import axios from "axios";
+import './Navbar.css'
 
 function Navbar() {
     const { isAuthenticated } = GetAuth();
     const { numOfBooks } = GetNumOfBooks();
     const { setBooks } = GetBooks();
-    const { userId } = GetUserId();
+    const { userId, userInitialized } = GetUserId();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const { deadlineEnabled, setDeadlineEnabled } = GetDeadlineStatus();
     const { setText } = GetBooksSearch();
@@ -19,12 +20,15 @@ function Navbar() {
     }
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && userInitialized()) {
             async function getDeadlineStatus() {
                 try {
                     const response = await axios.get('/getDeadlineStatus', { params: { userId: userId } });
                     if (response.data.success) {
+                        console.log("response", response.data);
                         setDeadlineEnabled(response.data.deadlineStatus);
+                    } else {
+                        console.log("failed",response.data);
                     }
                 } catch (err) {
                     console.error(err);
@@ -32,7 +36,7 @@ function Navbar() {
             }
             getDeadlineStatus();
         }
-    }, [isAuthenticated, userId, setDeadlineEnabled]);
+    }, [isAuthenticated, userId, setDeadlineEnabled, userInitialized]);
 
     async function toggleDeadlineStatus() {
         try {

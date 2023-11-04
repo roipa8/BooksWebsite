@@ -1,0 +1,40 @@
+.book-item-hover {
+    opacity: 0.9;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.book-item {
+    background-color: #e0f2f1;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    max-width: 210px;
+    align-items: center;
+    position: relative;
+}
+
+.book-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.buttons {
+    width: 100%;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.buttons * {
+    margin: 7px 0;
+}
+
+.img-cursor {
+    cursor: pointer;
+}

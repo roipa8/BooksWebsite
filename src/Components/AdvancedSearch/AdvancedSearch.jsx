@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import Navbar from "./Navbar";
+import Navbar from "../Navbar/Navbar";
 import axios from "axios";
-import { GetBooks } from "./BooksContext";
-import Book from "./Book";
-import { GetAuth } from "./AuthContext";
+import { GetBooks } from "../../Contexts/BooksContext";
+import Book from "../Book/Book";
+import { GetAuth } from "../../Contexts/AuthContext";
+import './AdvancedSearch.css'
 
 function AdvancedSearch() {
     const maxResults = 40;
@@ -48,9 +49,10 @@ function AdvancedSearch() {
             console.error("Error fetching data from Google Books API ", err);
         }
     }
+    
     return <div>
         <Navbar />
-        <form onSubmit={handleSearch} className="form2-container">
+        <form onSubmit={handleSearch} className="search-form-container">
             <h1 style={{ color: "black" }}>Advanced Search</h1>
             <div className="mb-3">
                 <label for="formGroupExampleInput" className="form-label">Title:</label>

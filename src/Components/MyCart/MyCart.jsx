@@ -1,11 +1,21 @@
-import React from "react";
-import MyNavbar from "./Navbar";
-import { GetMyReadBooks, GetMyUnreadBooks } from "./BooksContext";
-import Book from "./Book";
+import React, { useEffect } from "react";
+import MyNavbar from "../Navbar/Navbar";
+import { GetMyReadBooks, GetMyUnreadBooks } from "../../Contexts/BooksContext";
+import Book from "../Book/Book";
+import { useNavigate } from "react-router-dom";
+import { GetAuth } from "../../Contexts/AuthContext";
+import './MyCart.css'
 
-export default function MyCart() {
+function MyCart() {
     const { myUnreadBooks } = GetMyUnreadBooks();
     const { myReadBooks } = GetMyReadBooks();
+    const { isAuthenticated } = GetAuth();
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate('/login');
+        }
+    }, [isAuthenticated, navigate])
     return <div>
         <MyNavbar />
         <div className="unread-read-books">
@@ -22,4 +32,6 @@ export default function MyCart() {
             }
         </div>
     </div>;
-};
+}
+
+export default MyCart;

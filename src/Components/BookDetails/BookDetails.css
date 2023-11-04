@@ -1,0 +1,38 @@
+.full-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+.book-details-screen {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 70%;
+    max-height: 70%;
+    overflow: auto;
+    position: relative;
+}
+
+.book-details-image {
+    grid-row: span 2;
+    margin-right: 20px;
+}
+
+.book-details-adds {
+    grid-column: span 2;
+}
+
+.book-details-adds {
+    list-style-type: disc;
+}

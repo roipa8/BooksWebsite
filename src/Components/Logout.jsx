@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { GetAuth, GetUserId } from "./AuthContext";
-import { GetBooks } from "./BooksContext";
+import { GetAuth, GetUserId } from "../Contexts/AuthContext";
+import { GetBooks } from "../Contexts/BooksContext";
 
 function Logout() {
     const navigate = useNavigate();

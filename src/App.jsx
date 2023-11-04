@@ -1,13 +1,14 @@
 import React from 'react';
-import Home from './Home';
-import Register from './Register';
-import Login from './Login';
-import MyCart from './MyCart';
-import Logout from "./Logout";
-import AdvancedSearch from "./AdvancedSearch";
-import { AuthProvider } from './AuthContext';
+import Home from './Components/Home';
+import Register from './Components/Register';
+import Login from './Components/Login';
+import MyCart from './Components/MyCart/MyCart';
+import Logout from "./Components/Logout";
+import AdvancedSearch from "./Components/AdvancedSearch/AdvancedSearch";
+import { AuthProvider } from './Contexts/AuthContext';
 import { createBrowserRouter, RouterProvider, createRoutesFromElements, Route } from 'react-router-dom';
-import { BooksProvider } from './BooksContext';
+import { BooksProvider } from './Contexts/BooksContext';
+import About from './navbar-pages/About/About';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -17,6 +18,7 @@ const router = createBrowserRouter(
       <Route path='login' element={<Login />} />
       <Route path='logout' element={<Logout />} />
       <Route path='myBooks' element={<MyCart />} />
+      <Route path='about' element={<About />} />
       <Route path='advancedSearch' element={<AdvancedSearch />} />
     </Route>
   )
