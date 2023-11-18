@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import BookDetails from "../BookDetails/BookDetails";
+import BookDetails from "../Modals/BookDetails/BookDetails";
 import { GetAuth, GetDeadlineStatus, GetUserId } from "../../Contexts/AuthContext";
 import axios from "axios";
 import { GetMyReadBooks, GetMyUnreadBooks, GetNumOfBooks } from "../../Contexts/BooksContext";
-import BookDeadline from "../BookDeadline/BookDeadline";
+import BookDeadline from "../Modals/BookDeadline/BookDeadline";
 import './Book.css'
 
 function Book(props) {
@@ -14,18 +14,18 @@ function Book(props) {
     const { myReadBooks, setMyReadBooks } = GetMyReadBooks();
     const { myUnreadBooks, setMyUnreadBooks } = GetMyUnreadBooks();
     const { isAuthenticated } = GetAuth();
-    const [fullDetails, setFullDetails] = useState(false);
+    const [fullDetailsModal, setFullDetailsModal] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [isImgHovered, setImgHovered] = useState(false);
     const isInCart = props.isInCart;
     const isRead = props.isRead;
     const { deadlineEnabled } = GetDeadlineStatus();
-    const [deadlineWindow, setDeadlineWindow] = useState(false);
+    const [deadlineModal, setDeadlineModal] = useState(false);
     const [deadlineEnded, setDeadlineEnded]  = useState(false);
     const daysLeft = props.bookItem.daysLeft;
 
     function handleMouseOver() {
-        if (!fullDetails && !deadlineWindow) {
+        if (!fullDetailsModal && !deadlineModal) {
             setIsHovered(true);
         }
     };
@@ -48,7 +48,7 @@ function Book(props) {
                 const response = await axios.patch("/addBook", { bookId: bookId, userId: userId });
                 if (response.data.success) {
                     if (deadlineEnabled) {
-                        setDeadlineWindow(true);
+                        setDeadlineModal(true);
                     }
                     setNumOfBooks(prevValue => prevValue + 1);
                     setMyUnreadBooks(prevValue => [...prevValue, props.bookItem]);
@@ -105,19 +105,19 @@ function Book(props) {
 
     return <div className={`book-item ${isHovered && `book-item-hover`}`} onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
         <div className="book-content">
-            <img className={`${isImgHovered && `img-cursor`}`} onMouseOver={handleImgOver} onMouseOut={handleImgOut} onClick={() => { setFullDetails(true) }} src={volumeInfo.imageLinks && volumeInfo.imageLinks.smallThumbnail} alt="Book" />
+            <img className={`${isImgHovered && `img-cursor`}`} onMouseOver={handleImgOver} onMouseOut={handleImgOut} onClick={() => { setFullDetailsModal(true) }} src={volumeInfo.imageLinks && volumeInfo.imageLinks.smallThumbnail} alt="Book" />
             <h4>{volumeInfo.title}</h4>
         </div>
         {isInCart && !isRead && console.log(props.bookItem)}
-        {deadlineWindow && <BookDeadline bookId={bookId} userId={userId} deadlineEnded={deadlineEnded} setDeadlineEnded={setDeadlineEnded} onClose={() => { setDeadlineWindow(false) }} />}
-        {fullDetails && <BookDetails book={props.bookItem} onClose={() => { setFullDetails(false) }} />}
+        {deadlineModal && <BookDeadline bookId={bookId} userId={userId} deadlineEnded={deadlineEnded} setDeadlineEnded={setDeadlineEnded} onClose={() => { setDeadlineModal(false) }} />}
+        {fullDetailsModal && <BookDetails book={props.bookItem} onClose={() => { setFullDetailsModal(false) }} />}
         <div className="buttons">
             {!isInCart && isAuthenticated && <button onClick={addToCart} className="btn btn-info">Add Book</button>}
-            {isInCart && <a className="btn btn-secondary" href={volumeInfo.previewLink}>Read the book</a>}
+            {isInCart && <a className="btn btn-secondary" href={volumeInfo.previewLink}>Read The Book</a>}
             {isInCart && <button onClick={removeFromCart} className="btn btn-info">Remove From List</button>}
             {isInCart && !isRead && <button onClick={markAsRead} className="btn btn-light">Mark As Read</button>}
-            {deadlineEnabled && isInCart && !isRead && daysLeft !== undefined && <p>{daysLeftHandler(daysLeft)}</p>}
-            {!isRead && deadlineEnded && <button onClick={() => { setDeadlineWindow(true); }}>Renew Deadline</button>}
+            {deadlineEnabled && isInCart && !isRead && daysLeft !== undefined && <p className="deadline-message">{daysLeftHandler(daysLeft)}</p>}
+            {deadlineEnabled && isInCart && !isRead && deadlineEnded && <button className="btn btn-warning" onClick={() => { setDeadlineModal(true); }}>Renew Deadline</button>}
         </div>
     </div>
 }

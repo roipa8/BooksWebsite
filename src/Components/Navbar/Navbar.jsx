@@ -25,7 +25,6 @@ function Navbar() {
                 try {
                     const response = await axios.get('/getDeadlineStatus', { params: { userId: userId } });
                     if (response.data.success) {
-                        console.log("response", response.data);
                         setDeadlineEnabled(response.data.deadlineStatus);
                     } else {
                         console.log("failed",response.data);

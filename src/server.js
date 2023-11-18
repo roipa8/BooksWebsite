@@ -11,12 +11,15 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import findOrCreate from "mongoose-findorcreate";
 import "dotenv/config";
+import crypto from 'crypto'
+import nodemailer from 'nodemailer'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = path.join(__dirname, "../build");
 
 const app = express();
 const port = 3000;
+const baseURL = 'http://localhost:3000';
 
 app.use(express.static(buildPath));
 app.use(bodyParser.json());
@@ -34,11 +37,14 @@ app.use(passport.session());
 mongoose.connect("mongodb://127.0.0.1:27017/booksUsersDB", { useNewUrlParser: true, useUnifiedTopology: true });
 
 const userSchema = new mongoose.Schema({
+    email: { type: String, unique: true },
     username: String,
     password: String,
     googleId: String,
     facebookId: String,
-    deadlineStatus: {type: Boolean, default: false},
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    deadlineStatus: { type: Boolean, default: false },
     cart: [
         {
             startingDate: { type: Date, default: Date.now },
@@ -151,10 +157,13 @@ app.get('/isAuthenticated', (req, res) => {
 
 
 app.post("/register", (req, res) => {
-    User.register({ username: req.body.username, active: false }, req.body.password, function (err, user) {
+    const newUser = new User({
+        email: req.body.email,
+        username: req.body.username
+    })
+    User.register(newUser, req.body.password, function (err, user) {
         if (err) {
-            console.error(err);
-            res.status(404).json({ success: false, message: 'Registration Failed', error: err.message });
+            res.status(404).send('Registration Failed.');
         } else {
             passport.authenticate("local")(req, res, function () {
                 res.json({ success: true, message: 'Registration Successful', user: user.username });
@@ -166,14 +175,14 @@ app.post("/register", (req, res) => {
 app.post('/login', (req, res) => {
     passport.authenticate('local', (err, user) => {
         if (err) {
-            return res.status(500).json({ success: false, message: 'Server Error', error: err.message });
+            return res.status(500).send('Server Error.');
         }
         if (!user) {
-            return res.status(401).json({ success: false, message: 'Authentication failed', error: info.message });
+            return res.status(401).send('Authentication failed.');
         }
         req.logIn(user, (err) => {
             if (err) {
-                return res.status(500).json({ success: false, message: 'Login error', error: err.message });
+                return res.status(500).send('Login error.');
             }
             return res.json({ success: true, message: 'Successfully authenticated', user: user.username });
         });
@@ -223,7 +232,7 @@ app.get('/getUserBooksData', async (req, res) => {
                 { googleId: userId.googleId },
                 { facebookId: userId.facebookId }
             ]
-        };  
+        };
         const user = await User.findOne(filter);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
@@ -288,7 +297,6 @@ app.patch('/markAsRead', async (req, res) => {
 app.get('/getDeadlineStatus', async (req, res) => {
     try {
         const { userId } = req.query;
-        console.log('Received query:', req.query);
         const filter = {
             $or: [
                 { username: userId.userName },
@@ -350,8 +358,75 @@ app.patch('/toggleDeadlineStatus', async (req, res) => {
         await user.save();
         return res.json({ success: true, message: "User deadline status changed succefully" });
     } catch (err) {
+        console.log(err.message);
         return res.status(500).json({ success: false, message: "Server error", error: err.message });
     }
+})
+
+app.post('/resetPassword', async (req, res) => {
+    const { email } = req.body;
+    const token = crypto.randomBytes(20).toString('hex');
+    const user = await User.findOne({ email: email });
+    const fromEmail = 'roipaz888@gmail.com';
+    if (!user) {
+        return res.status(404).send('User not found');
+    }
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+    const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: fromEmail,
+            pass: process.env.EMAIL_PASSWORD
+        }
+    });
+    const resetURL = `${baseURL}/resetPassword/${token}`;
+    const mailOptions = {
+        from: fromEmail,
+        to: email,
+        subject: 'Password Reset',
+        text: `You requested a password reset. Please copy and paste the URL below into your browser to reset your password. If you did not request this, please ignore this email.\n\n${resetURL}`,
+        html: `<p>You requested a password reset. Please click on the link below to reset your password:</p>
+         <a href=${resetURL} target="_blank">Reset Password</a>
+         <p>If you did not request this, please ignore this email.</p>`
+    }
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.error('Send mail failed:', error);
+            res.status(500).json({ success: false, message: 'Error sending email' });
+        } else {
+            res.status(200).json({ success: true, message: 'Email sent' });
+        }
+    });
+})
+
+app.post('/resetPassword/:token', async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+    const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() }
+    });
+    if (!user) {
+        return res.status(400).send('Password reset token is invalid or has expired.');
+    }
+    user.setPassword(password, async (err) => {
+        if (err) {
+            console.error('Error setting new password:', err);
+            return res.status(500).send('Error resetting password');
+        }
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+        req.logIn(user, (err) => {
+            if (err) {
+                return res.status(500).json('Login error');
+            }
+            return res.json({ success: true, message: 'Successfully authenticated', user: user.username });
+        });
+    })
 })
 
 app.get("*", (req, res) => {

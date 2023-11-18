@@ -7,33 +7,53 @@ import { GetAuth, GetUserId } from "../Contexts/AuthContext";
 function Login() {
     const [errorMessage, setErrorMessage] = useState(null);
     const navigate = useNavigate();
-    const {setIsAuthenticated} = GetAuth();
-    const {setUserId} = GetUserId();
-    async function handleLogin(userData){
+    const { setIsAuthenticated } = GetAuth();
+    const { setUserId } = GetUserId();
+
+    function validateRegistrationData(userData) {
+        const { username, password } = userData;
+        let errors = [];
+        if (!username) {
+            errors.push("Username is required");
+        }
+        if (!password) {
+            errors.push("Password is required");
+        }
+
+        return {
+            isValid: errors.length === 0,
+            message: errors.join(", ")
+        };
+    }
+
+    async function handleLogin(userData) {
         try {
-            const response = await axios.post('/login', userData);
-            if(response.data.success){
-                setIsAuthenticated(true);
-                const userResponse = response.data.user;
-                setUserId((prevValue) => {
-                    return {
-                        ...prevValue,
-                        userName: userResponse
-                    }
-                });
-                navigate("/");
+            const validation = validateRegistrationData(userData);
+            if (validation.isValid) {
+                const response = await axios.post('/login', userData);
+                if (response.data.success) {
+                    setIsAuthenticated(true);
+                    const userResponse = response.data.user;
+                    setUserId((prevValue) => {
+                        return {
+                            ...prevValue,
+                            userName: userResponse
+                        }
+                    });
+                    navigate("/");
+                }
             } else {
-                setErrorMessage('An error occured while you logged in. Please try again.');    
+                setErrorMessage(validation.message);
             }
         } catch (error) {
-            console.error(error);
-            setErrorMessage('An error occured while you logged in. Please try again.');
+            setErrorMessage(error.response.data + " Please try again.");
         }
     }
+
     return (
         <div>
-            <UserForm title="Login" onSubmit={handleLogin}/>
-            {errorMessage && <p style={{color: "red", textAlign: "center"}}>{errorMessage}</p>}
+            <UserForm title="Login" onSubmit={handleLogin} />
+            {errorMessage && <p style={{ color: "red", textAlign: "center" }}>{errorMessage}</p>}
         </div>
     )
 }

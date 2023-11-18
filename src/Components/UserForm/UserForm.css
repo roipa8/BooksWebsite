@@ -7,7 +7,7 @@
     font-family: "Source Sans Pro", sans-serif;
 }
 
-.user-form-container input {
+.user-form-input {
     border: 1px solid rgba(252, 252, 252, 0.4);
     background-color: rgba(252, 252, 252, 0.2);
     width: 250px;
@@ -21,7 +21,7 @@
     font-weight: 300;
 }
 
-.user-form-container h1 {
+.user-form-title {
     color: white;
     font-size: 40px;
     font-weight: 200;
@@ -61,6 +61,20 @@
     border-radius: 5px;
     width: 250px;
     font-size: 18px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.forgot-password {
+    background-color: #f2f2f2; 
+    color: #17a2b8; 
+    border: 1px solid #17a2b8; 
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 5px;
+    font-weight: bold;
 }
 
 .btn-google {

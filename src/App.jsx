@@ -9,6 +9,7 @@ import { AuthProvider } from './Contexts/AuthContext';
 import { createBrowserRouter, RouterProvider, createRoutesFromElements, Route } from 'react-router-dom';
 import { BooksProvider } from './Contexts/BooksContext';
 import About from './navbar-pages/About/About';
+import ResetPassword from './Components/ResetPassword/ResetPassword';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,6 +21,7 @@ const router = createBrowserRouter(
       <Route path='myBooks' element={<MyCart />} />
       <Route path='about' element={<About />} />
       <Route path='advancedSearch' element={<AdvancedSearch />} />
+      <Route path='resetPassword/:token' element={<ResetPassword />} />
     </Route>
   )
 );

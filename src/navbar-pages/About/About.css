@@ -1,4 +1,49 @@
-.about-content {
-    text-align: center;
-    margin: 50px 20px;
+.about-section-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
 }
+
+.about-section {
+    max-width: 800px;
+    padding: 20px;
+    background-color: #f8f9fa; 
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .about-section h1, .about-section h2 {
+    color: #333;
+  }
+  
+  .about-section p {
+    color: #666; 
+    line-height: 1.6;
+  }
+  
+  .about-section ul {
+    list-style: none;   
+    padding: 0;
+  }
+  
+  /* .about-section li {
+    background: url('path-to-icon.png') no-repeat left center;
+    padding-left: 30px; 
+    margin-bottom: 10px;
+  } */
+  
+  .cta-button a {
+    display: inline-block;
+    padding: 10px 20px;
+    color: white;
+    background-color: #17a2b8; 
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .cta-button a:hover {
+    background-color: #13597c;
+  }
+  
