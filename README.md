@@ -1,5 +1,17 @@
 # Books Website
 
+## Table of Contents
+- [Overview](#overview)
+  - [Description](#description)
+  - [Target Audience](#target-audience)
+- [User Access & Features](#user-access--features)
+  - [All Users](#all-users)
+  - [Registered Users](#registered-users)
+  - [Registration](#registration)
+- [Technologies Used](#technologies-used)
+- [Setup & Installation](#setup--installation)
+
+
 ## Overview
 
 ### Description
@@ -11,18 +23,22 @@ This website is built for people who want to discover and learn more about books
 ## User Access & Features
 This website offers two levels of access to suit both casual browsers and registered users:
 
-### Unregistered Users
-- **Book Search**: Unregistered users can freely search for books with a simple search and easy-to-use navigation feature.
-- **Detailed Book Information**: Get to know more about the books available on Google Books with detailed information.
-  
+### All Users
+- **Book Search**: Users can perform a simple search or use the advanced search feature to filter books by title, author, and genre.
+- **Detailed Book Information**: Get to know more about the books available on Google Books with detailed information, including cover images, titles, descriptions, authors, and page counts.
+- **Advanced Search**: Expand your search capabilities with the ability to filter by title, author, or genre. Select one or combine multiple criteria to find the exact books you're interested in.
+
 ### Registered Users
 Upon registering with a username and password, or via Google or Facebook, users unlock additional features including:
 - **User Cart Management**: Keep track of the books you love in a personal cart that you can add to or remove items from anytime.
 - **Access to Full Content**: If available, registered users can get a direct link to the full content of the books, enhancing their reading experience.
+- **Read Books Tracking**: Save the books you've read to track your reading journey.
+- **Reading Deadline**: Set deadlines for individual books to establish reading goals and timelines.
+- **Password Recovery**: Securely reset forgotten passwords via your registration email, ensuring continued access to your account.
 
 ### Registration
 To become a registered user and unlock additional features, users can sign up through various methods including:
-- **Standard Registration**: Using a username and password.
+- **Standard Registration**: Register with a username, password, and an email address to secure your account and enable password recovery.
 - **Social Media Registration**: Quickly register using Google or Facebook accounts for a seamless signup process.
 
 By providing these options, the website is suited for people who just want to browse and for those who want a more personal experience.
