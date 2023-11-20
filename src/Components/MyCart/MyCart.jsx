@@ -9,13 +9,13 @@ import './MyCart.css'
 function MyCart() {
     const { myUnreadBooks } = GetMyUnreadBooks();
     const { myReadBooks } = GetMyReadBooks();
-    const { isAuthenticated } = GetAuth();
+    const { isAuthenticated, loading } = GetAuth();
     const navigate = useNavigate();
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!loading && !isAuthenticated) {
             navigate('/login');
         }
-    }, [isAuthenticated, navigate])
+    }, [isAuthenticated, navigate, loading])
     return <div>
         <MyNavbar />
         <div className="unread-read-books">

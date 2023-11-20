@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import BookDetails from "../Modals/BookDetails/BookDetails";
 import { GetAuth, GetDeadlineStatus, GetUserId } from "../../Contexts/AuthContext";
 import axios from "axios";
@@ -21,7 +21,6 @@ function Book(props) {
     const isRead = props.isRead;
     const { deadlineEnabled } = GetDeadlineStatus();
     const [deadlineModal, setDeadlineModal] = useState(false);
-    const [deadlineEnded, setDeadlineEnded]  = useState(false);
     const daysLeft = props.bookItem.daysLeft;
 
     function handleMouseOver() {
@@ -65,8 +64,12 @@ function Book(props) {
         try {
             const response = await axios.delete("/removeBook", { params: { bookId: bookId, userId: userId } });
             if (response.data.success) {
-                setNumOfBooks(prevValue => prevValue - 1);
-                setMyUnreadBooks(prevValue => prevValue.filter((book) => book.id !== bookId));
+                if (response.data.status === 'unread') {
+                    setNumOfBooks(prevValue => prevValue - 1);
+                    setMyUnreadBooks(prevValue => prevValue.filter((book) => book.id !== bookId));
+                } else if (response.data.status === 'read') {
+                    setMyReadBooks(prevValue => prevValue.filter((book) => book.id !== bookId));
+                }
             }
         } catch (err) {
             console.error(err);
@@ -86,20 +89,13 @@ function Book(props) {
         }
     }
 
-    useEffect(() => {
-        if (daysLeft !== undefined && daysLeft <= 0) {
-            setDeadlineEnded(true);
-        }
-    }, [daysLeft, setDeadlineEnded]);
-
-
     function daysLeftHandler(daysLeft) {
         if (daysLeft > 1) {
             return `You got ${daysLeft} days until your deadline`;
         } else if (daysLeft === 1) {
             return "It's your last day before the deadline ends";
         } else {
-            return "Your deadline ended";
+            return "Renew Deadline";
         }
     }
 
@@ -109,15 +105,14 @@ function Book(props) {
             <h4>{volumeInfo.title}</h4>
         </div>
         {isInCart && !isRead && console.log(props.bookItem)}
-        {deadlineModal && <BookDeadline bookId={bookId} userId={userId} deadlineEnded={deadlineEnded} setDeadlineEnded={setDeadlineEnded} onClose={() => { setDeadlineModal(false) }} />}
+        {deadlineModal && <BookDeadline bookId={bookId} userId={userId} onClose={() => { setDeadlineModal(false) }} />}
         {fullDetailsModal && <BookDetails book={props.bookItem} onClose={() => { setFullDetailsModal(false) }} />}
         <div className="buttons">
             {!isInCart && isAuthenticated && <button onClick={addToCart} className="btn btn-info">Add Book</button>}
             {isInCart && <a className="btn btn-secondary" href={volumeInfo.previewLink}>Read The Book</a>}
             {isInCart && <button onClick={removeFromCart} className="btn btn-info">Remove From List</button>}
             {isInCart && !isRead && <button onClick={markAsRead} className="btn btn-light">Mark As Read</button>}
-            {deadlineEnabled && isInCart && !isRead && daysLeft !== undefined && <p className="deadline-message">{daysLeftHandler(daysLeft)}</p>}
-            {deadlineEnabled && isInCart && !isRead && deadlineEnded && <button className="btn btn-warning" onClick={() => { setDeadlineModal(true); }}>Renew Deadline</button>}
+            {deadlineEnabled && isInCart && !isRead && daysLeft !== undefined && <button onClick={() => { setDeadlineModal(true); }} className={daysLeft > 5 ? "btn btn-success" : "btn btn-warning"}>{daysLeftHandler(daysLeft)}</button>}
         </div>
     </div>
 }

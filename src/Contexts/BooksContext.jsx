@@ -35,7 +35,7 @@ export function BooksProvider({ children }) {
     const [myReadBooks, setMyReadBooks] = useState([]);
     const [myUnreadBooks, setMyUnreadBooks] = useState([]);
     const [text, setText] = useState("");
-    const { isAuthenticated } = GetAuth();
+    const { isAuthenticated, loading } = GetAuth();
     const { userId, userInitialized } = GetUserId();
 
     function updateDeadlineForBook(bookId, newDeadlineDate) {
@@ -63,7 +63,7 @@ export function BooksProvider({ children }) {
 
 
     useEffect(() => {
-        if (isAuthenticated && userInitialized()) {
+        if (!loading && isAuthenticated && userInitialized()) {
             async function getUserBooksData() {
                 try {
                     const response = await axios.get('/getUserBooksData', { params: { userId: userId } });
@@ -112,7 +112,7 @@ export function BooksProvider({ children }) {
             };
             getUserBooksData();
         }
-    }, [userId, setNumOfBooks, setMyReadBooks, setMyUnreadBooks, isAuthenticated, userInitialized]);
+    }, [userId, setNumOfBooks, setMyReadBooks, setMyUnreadBooks, loading, isAuthenticated, userInitialized]);
 
 
     return (

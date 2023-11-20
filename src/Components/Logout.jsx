@@ -14,6 +14,7 @@ function Logout() {
             try {
                 const response = await axios.get('/logout');
                 if (response.data.success) {
+                    localStorage.removeItem('isAuthenticated');
                     setIsAuthenticated(false);
                     setUserId({
                         userName: "",

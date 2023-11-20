@@ -3,7 +3,6 @@ import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 import { GetBooks } from "../../Contexts/BooksContext";
 import Book from "../Book/Book";
-import { GetAuth } from "../../Contexts/AuthContext";
 import './AdvancedSearch.css'
 
 function AdvancedSearch() {
@@ -15,7 +14,6 @@ function AdvancedSearch() {
         genre: ""
     });
     const { books, setBooks } = GetBooks();
-    const { isAuthenticated } = GetAuth();
 
     function handleInput(event) {
         const { name, value } = event.target;
@@ -69,7 +67,7 @@ function AdvancedSearch() {
             <button className="btn btn-secondary">Search</button>
         </form>
         <div className="book-container">
-            {books.map((book, index) => <Book key={index} bookItem={book} isInCart={isAuthenticated ? true : false} />)}
+            {books.map((book, index) => <Book key={index} bookItem={book} isInCart={false} />)}
         </div>
     </div>
 }

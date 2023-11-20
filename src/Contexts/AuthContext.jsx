@@ -25,21 +25,33 @@ export function AuthProvider({ children }) {
         facebookId: ""
     });
     const [deadlineEnabled, setDeadlineEnabled] = useState();
+    const [loading, setLoading] = useState(true);
 
     function userInitialized() {
         return userId.userName !== "" || userId.googleId !== "" || userId.facebookId !== "";
     }
     useEffect(() => {
         async function checkAuthentication() {
-            try {
-                const response = await axios.get("/isAuthenticated");
-                setIsAuthenticated(response.data.isAuthenticated);
-            } catch (error) {
-                console.error(error);
+            const savedAuthStatus = localStorage.getItem('isAuthenticated');
+            if (savedAuthStatus === 'true') {
+                console.log("Check", savedAuthStatus);
+                setIsAuthenticated(true);
+            } else {
+                try {
+                    const response = await axios.get("/isAuthenticated");
+                    setIsAuthenticated(response.data.isAuthenticated);
+                    if (response.data.isAuthenticated) {
+                        localStorage.setItem('isAuthenticated', 'true');
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             }
+            setLoading(false);
         }
         checkAuthentication();
     }, []);
+
     useEffect(() => {
         async function getUserData() {
             try {
@@ -67,7 +79,7 @@ export function AuthProvider({ children }) {
         getUserData();
     }, [setIsAuthenticated, setUserId]);
     return (
-        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, loading }}>
             <UserContext.Provider value={{ userId, setUserId, userInitialized }}>
                 <DeadlineContext.Provider value={{ deadlineEnabled, setDeadlineEnabled }}>
                     {children}

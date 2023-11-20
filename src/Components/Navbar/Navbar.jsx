@@ -6,7 +6,7 @@ import axios from "axios";
 import './Navbar.css'
 
 function Navbar() {
-    const { isAuthenticated } = GetAuth();
+    const { isAuthenticated, loading } = GetAuth();
     const { numOfBooks } = GetNumOfBooks();
     const { setBooks } = GetBooks();
     const { userId, userInitialized } = GetUserId();
@@ -20,7 +20,7 @@ function Navbar() {
     }
 
     useEffect(() => {
-        if (isAuthenticated && userInitialized()) {
+        if (!loading && isAuthenticated && userInitialized()) {
             async function getDeadlineStatus() {
                 try {
                     const response = await axios.get('/getDeadlineStatus', { params: { userId: userId } });
@@ -35,7 +35,7 @@ function Navbar() {
             }
             getDeadlineStatus();
         }
-    }, [isAuthenticated, userId, setDeadlineEnabled, userInitialized]);
+    }, [loading, isAuthenticated, userId, setDeadlineEnabled, userInitialized]);
 
     async function toggleDeadlineStatus() {
         try {
@@ -61,7 +61,7 @@ function Navbar() {
                 <li className="nav-item"><Link to="/FAQs" className="nav-link link-body-emphasis px-2">FAQs</Link></li>
                 <li className="nav-item"><Link to="/about" className="nav-link link-body-emphasis px-2">About</Link></li>
                 <li className="nav-item"><Link to="/advancedSearch" className="nav-link link-body-emphasis px-2">Advanced-Search</Link></li>
-                {isAuthenticated && (
+                {!loading && isAuthenticated && (
                     <div className="dropdown">
                         <button onClick={toggleDropdown}>Preferences <span>&#x25BC;</span></button>
                         {dropdownOpen && (

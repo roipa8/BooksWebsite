@@ -7,8 +7,6 @@ function BookDeadline(props) {
     const [date, setDate] = useState();
     const [errorMessage, setErrorMessage] = useState("");
     const { updateDeadlineForBook } = GetMyUnreadBooks();
-    const deadlineEnded = props.deadlineEnded;
-    const setDeadlineEnded = props.setDeadlineEnded;
     const bookId = props.bookId;
 
     async function handleSubmit(event) {
@@ -18,9 +16,6 @@ function BookDeadline(props) {
                 const response = await axios.patch('/setDeadline', { userId: props.userId, bookId: props.bookId, date: date });
                 if (response.data.success) {
                     updateDeadlineForBook(bookId, date);
-                    if(deadlineEnded) {
-                        setDeadlineEnded(false);
-                    }
                     props.onClose();
                 } else {
                     console.error(response.message);

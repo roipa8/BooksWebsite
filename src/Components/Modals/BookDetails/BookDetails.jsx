@@ -24,8 +24,9 @@ function BookDetails(props) {
             <div className="book-details-titles">
                 <h1>{volumeInfo.title}</h1>
                 <h2>{volumeInfo.subtitle}</h2>
-                {volumeInfo.authors && volumeInfo.authors.map(author => <h4>{author}</h4>)}
-                <h4>{volumeInfo.publishedDate}</h4>
+                {volumeInfo.authors && <h4>Authours: {volumeInfo.authors.join(', ')}</h4>}
+                {volumeInfo.pageCount && <h4>Number of pages: {volumeInfo.pageCount}</h4>}
+                {volumeInfo.publishedDate && <h4>Published date: {volumeInfo.publishedDate}</h4>}
             </div>
             <div className="book-details-adds">
                 <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }}></div>

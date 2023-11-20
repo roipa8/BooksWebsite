@@ -253,6 +253,15 @@ app.delete('/removeBook', async (req, res) => {
                 { facebookId: userId.facebookId }
             ]
         };
+        const user = await User.findOne(filter);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        const bookInCart = user.cart.find(item => item.bookId === bookId);
+        if (!bookInCart) {
+            return res.status(404).json({ success: false, message: "Book not found in user's cart" });
+        }
+        const bookStatus = bookInCart.status;
         const update = {
             $pull: { cart: { bookId: bookId } }
         };
@@ -262,7 +271,8 @@ app.delete('/removeBook', async (req, res) => {
         } else if (result.nModified === 0) { // No documents were modified
             return res.status(404).json({ success: false, message: "User not found", error: err.message });
         }
-        return res.json({ success: true, message: "User successfully updated" });
+        console.log("Result",result);
+        return res.json({ success: true, message: "User successfully updated", status: bookStatus });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Server error", error: err.message });
     };

@@ -1,8 +1,10 @@
 import React from "react";
 import Navbar from "../../Components/Navbar/Navbar";
 import './About.css'
+import { GetAuth } from "../../Contexts/AuthContext";
 
 function About() {
+    const { isAuthenticated, loading } = GetAuth();
     return (
         <div>
             <Navbar />
@@ -29,10 +31,11 @@ function About() {
                     <p>
                         Registered users gain access to enhanced features, including reading trackers and book deadlines, to enrich their reading experience.
                     </p>
-
-                    <div className="cta-button">
-                        <a href="/register">Join Now and Explore</a>
-                    </div>
+                    {!loading && !isAuthenticated && (
+                        <div className="cta-button">
+                            <a href="/register">Sign Up Now and Explore</a>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
